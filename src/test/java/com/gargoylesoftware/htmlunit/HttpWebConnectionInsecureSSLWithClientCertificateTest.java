@@ -19,13 +19,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,8 +106,8 @@ public class HttpWebConnectionInsecureSSLWithClientCertificateTest extends Simpl
         webClient.getOptions().setSSLClientCertificate(getClass().getClassLoader().getResource("insecureSSL.keystore"),
                 "nopassword", "jks");
         webClient.getOptions().setUseInsecureSSL(true);
-        webClient.getPage("https://" + localServer_.getServer().getInetAddress().getHostName()
-                + ':' + localServer_.getServer().getLocalPort()
+        webClient.getPage("https://" //+ localServer_.getServer().getInetAddress().getHostName()
+                + ':' //+ localServer_.getServer().getLocalPort()
                 + "/random/100");
     }
 
@@ -128,8 +126,8 @@ public class HttpWebConnectionInsecureSSLWithClientCertificateTest extends Simpl
         final InputStream is = new ByteArrayInputStream(certificateBytes);
         webClient.getOptions().setSSLClientCertificate(is, "nopassword", "jks");
         webClient.getOptions().setUseInsecureSSL(true);
-        webClient.getPage("https://" + localServer_.getServer().getInetAddress().getHostName()
-                + ':' + localServer_.getServer().getLocalPort()
+        webClient.getPage("https://" // + localServer_.getServer().getInetAddress().getHostName()
+                + ':' // + localServer_.getServer().getLocalPort()
                 + "/random/100");
     }
 }

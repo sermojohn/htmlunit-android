@@ -20,11 +20,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.http.cookie.ClientCookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.impl.cookie.BasicClientCookieHC4;
 
 /**
  * A cookie. This class is immutable.
@@ -41,9 +40,10 @@ public class Cookie implements Serializable {
     /**
      * Creates a new cookie with the specified name and value which applies to the specified domain.
      * The new cookie applies to all paths, never expires and is not secure.
+     *
      * @param domain the domain to which this cookie applies
-     * @param name the cookie name
-     * @param value the cookie name
+     * @param name   the cookie name
+     * @param value  the cookie name
      */
     public Cookie(final String domain, final String name, final String value) {
         this(domain, name, value, null, null, false);
@@ -52,36 +52,38 @@ public class Cookie implements Serializable {
     /**
      * Creates a new cookie with the specified name and value which applies to the specified domain,
      * the specified path, and expires on the specified date.
-     * @param domain the domain to which this cookie applies
-     * @param name the cookie name
-     * @param value the cookie name
-     * @param path the path to which this cookie applies
+     *
+     * @param domain  the domain to which this cookie applies
+     * @param name    the cookie name
+     * @param value   the cookie name
+     * @param path    the path to which this cookie applies
      * @param expires the date on which this cookie expires
-     * @param secure whether or not this cookie is secure (i.e. HTTPS vs HTTP)
+     * @param secure  whether or not this cookie is secure (i.e. HTTPS vs HTTP)
      */
     public Cookie(final String domain, final String name, final String value, final String path, final Date expires,
-        final boolean secure) {
+                  final boolean secure) {
         this(domain, name, value, path, expires, secure, false);
     }
 
     /**
      * Creates a new cookie with the specified name and value which applies to the specified domain,
      * the specified path, and expires on the specified date.
-     * @param domain the domain to which this cookie applies
-     * @param name the cookie name
-     * @param value the cookie name
-     * @param path the path to which this cookie applies
-     * @param expires the date on which this cookie expires
-     * @param secure whether or not this cookie is secure (i.e. HTTPS vs HTTP)
+     *
+     * @param domain   the domain to which this cookie applies
+     * @param name     the cookie name
+     * @param value    the cookie name
+     * @param path     the path to which this cookie applies
+     * @param expires  the date on which this cookie expires
+     * @param secure   whether or not this cookie is secure (i.e. HTTPS vs HTTP)
      * @param httpOnly whether or not this cookie should be only used for HTTP(S) headers
      */
     public Cookie(final String domain, final String name, final String value, final String path, final Date expires,
-        final boolean secure, final boolean httpOnly) {
+                  final boolean secure, final boolean httpOnly) {
         if (domain == null) {
             throw new IllegalArgumentException("Cookie domain must be specified");
         }
 
-        final BasicClientCookie cookie = new BasicClientCookie(name, value != null ? value : "");
+        final BasicClientCookieHC4 cookie = new BasicClientCookieHC4(name, value != null ? value: "");
         cookie.setDomain(domain);
         cookie.setPath(path);
         cookie.setExpiryDate(expires);
@@ -94,6 +96,7 @@ public class Cookie implements Serializable {
 
     /**
      * Creates a new HtmlUnit cookie from the HttpClient cookie provided.
+     *
      * @param clientCookie the HttpClient cookie
      */
     public Cookie(final ClientCookie clientCookie) {
@@ -103,18 +106,19 @@ public class Cookie implements Serializable {
     /**
      * Creates a new cookie with the specified name and value which applies to the specified domain,
      * the specified path, and expires after the specified amount of time.
+     *
      * @param domain the domain to which this cookie applies
-     * @param name the cookie name
-     * @param value the cookie name
-     * @param path the path to which this cookie applies
+     * @param name   the cookie name
+     * @param value  the cookie name
+     * @param path   the path to which this cookie applies
      * @param maxAge the number of seconds for which this cookie is valid; <tt>-1</tt> indicates that the
-     *        cookie should never expire; other negative numbers are not allowed
+     *               cookie should never expire; other negative numbers are not allowed
      * @param secure whether or not this cookie is secure (i.e. HTTPS vs HTTP)
      */
     public Cookie(final String domain, final String name, final String value, final String path, final int maxAge,
-        final boolean secure) {
+                  final boolean secure) {
 
-        final BasicClientCookie cookie = new BasicClientCookie(name, value != null ? value : "");
+        final BasicClientCookieHC4 cookie = new BasicClientCookieHC4(name, value != null ? value: "");
         cookie.setDomain(domain);
         cookie.setPath(path);
         cookie.setSecure(secure);
@@ -131,6 +135,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns the cookie name.
+     *
      * @return the cookie name
      */
     public String getName() {
@@ -139,6 +144,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns the cookie value.
+     *
      * @return the cookie value
      */
     public String getValue() {
@@ -147,6 +153,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns the domain to which this cookie applies ({@code null} for all domains).
+     *
      * @return the domain to which this cookie applies ({@code null} for all domains)
      */
     public String getDomain() {
@@ -155,6 +162,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns the path to which this cookie applies ({@code null} for all paths).
+     *
      * @return the path to which this cookie applies ({@code null} for all paths)
      */
     public String getPath() {
@@ -163,6 +171,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns the date on which this cookie expires ({@code null} if it never expires).
+     *
      * @return the date on which this cookie expires ({@code null} if it never expires)
      */
     public Date getExpires() {
@@ -171,6 +180,7 @@ public class Cookie implements Serializable {
 
     /**
      * Returns whether or not this cookie is secure (i.e. HTTPS vs HTTP).
+     *
      * @return whether or not this cookie is secure (i.e. HTTPS vs HTTP)
      */
     public boolean isSecure() {
@@ -179,8 +189,9 @@ public class Cookie implements Serializable {
 
     /**
      * Returns whether or not this cookie is HttpOnly (i.e. not available in JS).
-     * @see <a href="http://en.wikipedia.org/wiki/HTTP_cookie#Secure_and_HttpOnly">Wikipedia</a>
+     *
      * @return whether or not this cookie is HttpOnly (i.e. not available in JS).
+     * @see <a href="http://en.wikipedia.org/wiki/HTTP_cookie#Secure_and_HttpOnly">Wikipedia</a>
      */
     public boolean isHttpOnly() {
         return httpClientCookie_.getAttribute("httponly") != null;
@@ -192,11 +203,11 @@ public class Cookie implements Serializable {
     @Override
     public String toString() {
         return getName() + "=" + getValue()
-            + (getDomain() != null ? ";domain=" + getDomain() : "")
-            + (getPath() != null ? ";path=" + getPath() : "")
-            + (getExpires() != null ? ";expires=" + getExpires() : "")
-            + (isSecure() ? ";secure" : "")
-            + (isHttpOnly() ? ";httpOnly" : "");
+            + (getDomain() != null ? ";domain=" + getDomain(): "")
+            + (getPath() != null ? ";path=" + getPath(): "")
+            + (getExpires() != null ? ";expires=" + getExpires(): "")
+            + (isSecure() ? ";secure": "")
+            + (isHttpOnly() ? ";httpOnly": "");
     }
 
     /**
@@ -208,10 +219,10 @@ public class Cookie implements Serializable {
             return false;
         }
         final Cookie other = (Cookie) o;
-        final String path = getPath() == null ? "/" : getPath();
-        final String otherPath = other.getPath() == null ? "/" : other.getPath();
+        final String path = getPath() == null ? "/": getPath();
+        final String otherPath = other.getPath() == null ? "/": other.getPath();
         return new EqualsBuilder().append(getName(), other.getName()).append(getDomain(), other.getDomain())
-                .append(path, otherPath).isEquals();
+            .append(path, otherPath).isEquals();
     }
 
     /**
@@ -219,12 +230,13 @@ public class Cookie implements Serializable {
      */
     @Override
     public int hashCode() {
-        final String path = getPath() == null ? "/" : getPath();
+        final String path = getPath() == null ? "/": getPath();
         return new HashCodeBuilder().append(getName()).append(getDomain()).append(path).toHashCode();
     }
 
     /**
      * Converts this cookie to an HttpClient cookie.
+     *
      * @return an HttpClient version of this cookie
      */
     public org.apache.http.cookie.Cookie toHttpClient() {
@@ -233,6 +245,7 @@ public class Cookie implements Serializable {
 
     /**
      * Converts the specified collection of cookies into an collection of HttpClient cookies.
+     *
      * @param cookies the cookies to be converted
      * @return the specified cookies, as HttpClient cookies
      */
@@ -247,6 +260,7 @@ public class Cookie implements Serializable {
 
     /**
      * Converts the specified array of HttpClient cookies into a list of cookies.
+     *
      * @param cookies the cookies to be converted
      * @return the specified HttpClient cookies, as cookies
      */

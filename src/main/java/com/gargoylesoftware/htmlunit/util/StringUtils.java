@@ -14,7 +14,7 @@
  */
 package com.gargoylesoftware.htmlunit.util;
 
-import java.awt.Color;
+//import java.awt.Color;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,7 +134,7 @@ public final class StringUtils {
      * @param token the token to parse
      * @return a Color whether the token is a color RGB in hexadecimal notation; otherwise null
      */
-    public static Color asColorHexadecimal(final String token) {
+    /*public static Color asColorHexadecimal(final String token) {
         if (token == null) {
             return null;
         }
@@ -158,7 +158,7 @@ public final class StringUtils {
         final int tmpBlue = Integer.parseInt(tmpHex.substring(2, 3) + tmpHex.substring(2, 3), 16);
         final Color tmpColor = new Color(tmpRed, tmpGreen, tmpBlue);
         return tmpColor;
-    }
+    }*/
 
     /**
      * Returns true if the specified token is in RGB notation.
@@ -177,7 +177,7 @@ public final class StringUtils {
      * @param token the token to parse
      * @return a Color whether the token is a color in RGB notation; otherwise null
      */
-    public static Color asColorRGB(final String token) {
+    /*public static Color asColorRGB(final String token) {
         if (token == null) {
             return null;
         }
@@ -192,14 +192,14 @@ public final class StringUtils {
         final int tmpBlue = Integer.parseInt(tmpMatcher.group(3));
         final Color tmpColor = new Color(tmpRed, tmpGreen, tmpBlue);
         return tmpColor;
-    }
+    }*/
 
     /**
      * Returns a Color parsed from the given rgb notation.
      * @param token the token to parse
      * @return a Color whether the token is a color in RGB notation; otherwise null
      */
-    public static Color findColorRGB(final String token) {
+    /*public static Color findColorRGB(final String token) {
         if (token == null) {
             return null;
         }
@@ -214,16 +214,17 @@ public final class StringUtils {
         final int tmpBlue = Integer.parseInt(tmpMatcher.group(3));
         final Color tmpColor = new Color(tmpRed, tmpGreen, tmpBlue);
         return tmpColor;
-    }
+    }*/
 
     /**
      * Formats the specified color.
      *
-     * @param aColor the color to format
+//     * @param aColor the color to format
      * @return the specified color, formatted
      */
-    public static String formatColor(final Color aColor) {
-        return "rgb(" + aColor.getRed() + ", " + aColor.getGreen() + ", " + aColor.getBlue() + ")";
+    public static String formatColor(/*final Color aColor*/) {
+//        return "rgb(" + aColor.getRed() + ", " + aColor.getGreen() + ", " + aColor.getBlue() + ")";
+        return "rgb(0, 0, 0)";
     }
 
     /**

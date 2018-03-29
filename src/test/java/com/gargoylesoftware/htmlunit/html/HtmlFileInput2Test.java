@@ -49,7 +49,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClientBuilderHC4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -269,14 +269,14 @@ public class HtmlFileInput2Test extends WebServerTestCase {
             throws NoSuchMethodException, IllegalAccessException,
             InvocationTargetException {
         final Method makeHttpMethod = HttpWebConnection.class.getDeclaredMethod("makeHttpMethod",
-                WebRequest.class, HttpClientBuilder.class);
+                WebRequest.class, HttpClientBuilderHC4.class);
         makeHttpMethod.setAccessible(true);
 
         final HttpWebConnection con = new HttpWebConnection(client);
 
         final Method getHttpClientBuilderMethod = HttpWebConnection.class.getDeclaredMethod("getHttpClientBuilder");
         getHttpClientBuilderMethod.setAccessible(true);
-        final HttpClientBuilder builder = (HttpClientBuilder) getHttpClientBuilderMethod.invoke(con);
+        final HttpClientBuilderHC4 builder = (HttpClientBuilderHC4) getHttpClientBuilderMethod.invoke(con);
 
         final HttpPost httpPost = (HttpPost) makeHttpMethod.invoke(con, webConnection.getLastWebRequest(), builder);
         final HttpEntity httpEntity = httpPost.getEntity();
@@ -380,7 +380,7 @@ public class HtmlFileInput2Test extends WebServerTestCase {
 
         filePost.setEntity(builder.build());
 
-        final HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+        final HttpClientBuilderHC4 clientBuilder = HttpClientBuilderHC4.create();
         final HttpResponse httpResponse = clientBuilder.build().execute(filePost);
 
         try (final InputStream content = httpResponse.getEntity().getContent()) {

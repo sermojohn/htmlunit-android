@@ -14,6 +14,7 @@
  */
 package com.gargoylesoftware.htmlunit.javascript.host.css;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.CSS_BACKGROUND_INITIAL;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.CSS_LENGTH_INITIAL;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.CSS_LENGTH_UNDEFINED_AS_EMPTY;
@@ -26,10 +27,23 @@ import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.JS_STYLE_SET_
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.JS_STYLE_UNSUPPORTED_PROPERTY_GETTER;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.JS_STYLE_WORD_SPACING_ACCEPTS_PERCENT;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.JS_STYLE_WRONG_INDEX_RETURNS_UNDEFINED;
+import com.gargoylesoftware.htmlunit.WebAssert;
+import com.gargoylesoftware.htmlunit.css.StyleElement;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.javascript.ScriptableWithFallbackGetter;
+import com.gargoylesoftware.htmlunit.javascript.SimpleScriptable;
 import static com.gargoylesoftware.htmlunit.javascript.configuration.BrowserName.CHROME;
 import static com.gargoylesoftware.htmlunit.javascript.configuration.BrowserName.EDGE;
 import static com.gargoylesoftware.htmlunit.javascript.configuration.BrowserName.FF;
 import static com.gargoylesoftware.htmlunit.javascript.configuration.BrowserName.IE;
+import com.gargoylesoftware.htmlunit.javascript.configuration.JsxClass;
+import com.gargoylesoftware.htmlunit.javascript.configuration.JsxConstructor;
+import com.gargoylesoftware.htmlunit.javascript.configuration.JsxFunction;
+import com.gargoylesoftware.htmlunit.javascript.configuration.JsxGetter;
+import com.gargoylesoftware.htmlunit.javascript.configuration.JsxSetter;
+import com.gargoylesoftware.htmlunit.javascript.configuration.WebBrowser;
+import com.gargoylesoftware.htmlunit.javascript.host.Element;
+import com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition;
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.ACCELERATOR;
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.BACKGROUND;
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.BACKGROUND_ATTACHMENT;
@@ -97,9 +111,12 @@ import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.WIDTH;
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.WORD_SPACING;
 import static com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition.Z_INDEX_;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-
-import java.awt.Color;
+import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLCanvasElement;
+import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLElement;
+import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLHtmlElement;
+import com.steadystate.css.dom.CSSValueImpl;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
@@ -116,39 +133,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import net.sourceforge.htmlunit.corejs.javascript.Context;
+import net.sourceforge.htmlunit.corejs.javascript.ScriptRuntime;
+import net.sourceforge.htmlunit.corejs.javascript.Scriptable;
+import net.sourceforge.htmlunit.corejs.javascript.Undefined;
 import org.apache.commons.lang3.StringUtils;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.css.sac.ErrorHandler;
 import org.w3c.css.sac.InputSource;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebAssert;
-import com.gargoylesoftware.htmlunit.css.StyleElement;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.javascript.ScriptableWithFallbackGetter;
-import com.gargoylesoftware.htmlunit.javascript.SimpleScriptable;
-import com.gargoylesoftware.htmlunit.javascript.configuration.JsxClass;
-import com.gargoylesoftware.htmlunit.javascript.configuration.JsxConstructor;
-import com.gargoylesoftware.htmlunit.javascript.configuration.JsxFunction;
-import com.gargoylesoftware.htmlunit.javascript.configuration.JsxGetter;
-import com.gargoylesoftware.htmlunit.javascript.configuration.JsxSetter;
-import com.gargoylesoftware.htmlunit.javascript.configuration.WebBrowser;
-import com.gargoylesoftware.htmlunit.javascript.host.Element;
-import com.gargoylesoftware.htmlunit.javascript.host.css.StyleAttributes.Definition;
-import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLCanvasElement;
-import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLElement;
-import com.gargoylesoftware.htmlunit.javascript.host.html.HTMLHtmlElement;
-import com.steadystate.css.dom.CSSValueImpl;
-import com.steadystate.css.parser.CSSOMParser;
-import com.steadystate.css.parser.SACParserCSS3;
-
-import net.sourceforge.htmlunit.corejs.javascript.Context;
-import net.sourceforge.htmlunit.corejs.javascript.ScriptRuntime;
-import net.sourceforge.htmlunit.corejs.javascript.Scriptable;
-import net.sourceforge.htmlunit.corejs.javascript.Undefined;
+//import java.awt.Color;
 
 /**
  * A JavaScript object for {@code CSSStyleDeclaration}.
@@ -2729,7 +2726,7 @@ public class CSSStyleDeclaration extends SimpleScriptable implements ScriptableW
      * @return the string of the color if found, null otherwise
      */
     private static String findColor(final String text) {
-        Color tmpColor = com.gargoylesoftware.htmlunit.util.StringUtils.findColorRGB(text);
+        /*Color tmpColor = com.gargoylesoftware.htmlunit.util.StringUtils.findColorRGB(text);
         if (tmpColor != null) {
             return com.gargoylesoftware.htmlunit.util.StringUtils.formatColor(tmpColor);
         }
@@ -2745,7 +2742,8 @@ public class CSSStyleDeclaration extends SimpleScriptable implements ScriptableW
                 return com.gargoylesoftware.htmlunit.util.StringUtils.formatColor(tmpColor);
             }
         }
-        return null;
+        return null;*/
+        return "rgb(0, 0, 0)";
     }
 
     /**

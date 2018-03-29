@@ -15,8 +15,6 @@
 package com.gargoylesoftware.htmlunit;
 
 import javax.net.ssl.SSLContext;
-
-import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.localserver.LocalServerTestBase;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -36,7 +34,7 @@ public class LocalTestServer extends LocalServerTestBase {
     public LocalTestServer(final SSLContext sslContext) throws Exception {
         super(ProtocolScheme.https);
         super.setUp();
-        this.serverBootstrap.setSslContext(sslContext);
+//        this.serverBootstrap.setSslContext(sslContext);
     }
 
     /**
@@ -45,14 +43,14 @@ public class LocalTestServer extends LocalServerTestBase {
      * @param handler the handler
      */
     public void register(final String pattern, final HttpRequestHandler handler) {
-        this.serverBootstrap.registerHandler(pattern, handler);
+//        this.serverBootstrap.registerHandler(pattern, handler);
     }
 
     /**
      * Returns the underlying server.
      * @return the server
      */
-    public HttpServer getServer() {
+    /*public HttpServer getServer() {
         return this.server;
-    }
+    }*/
 }

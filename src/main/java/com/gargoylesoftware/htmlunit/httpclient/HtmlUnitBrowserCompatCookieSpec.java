@@ -14,6 +14,8 @@
  */
 package com.gargoylesoftware.htmlunit.httpclient;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import static com.gargoylesoftware.htmlunit.httpclient.HtmlUnitHttpOnlyHandler.HTTPONLY_ATTR;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -21,36 +23,39 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.FormattedHeader;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.DateUtils;
+import static org.apache.http.cookie.ClientCookie.COMMENT_ATTR;
+import static org.apache.http.cookie.ClientCookie.DOMAIN_ATTR;
+import static org.apache.http.cookie.ClientCookie.EXPIRES_ATTR;
+import static org.apache.http.cookie.ClientCookie.MAX_AGE_ATTR;
+import static org.apache.http.cookie.ClientCookie.PATH_ATTR;
+import static org.apache.http.cookie.ClientCookie.SECURE_ATTR;
+import static org.apache.http.cookie.ClientCookie.VERSION_ATTR;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieAttributeHandler;
 import org.apache.http.cookie.CookieOrigin;
 import org.apache.http.cookie.CookiePathComparator;
 import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.cookie.SM;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.impl.cookie.BasicCommentHandler;
-import org.apache.http.impl.cookie.BasicMaxAgeHandler;
-import org.apache.http.impl.cookie.BasicSecureHandler;
+import org.apache.http.impl.cookie.BasicClientCookieHC4;
+import org.apache.http.impl.cookie.BasicCommentHandlerHC4;
+import org.apache.http.impl.cookie.BasicMaxAgeHandlerHC4;
+import org.apache.http.impl.cookie.BasicSecureHandlerHC4;
 import org.apache.http.impl.cookie.CookieSpecBase;
-import org.apache.http.impl.cookie.NetscapeDraftHeaderParser;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHeaderElement;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.util.CharArrayBuffer;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-
 /**
  * Customized BrowserCompatSpec for HtmlUnit.
- *
+ * <p>
  * Workaround for <a href="https://issues.apache.org/jira/browse/HTTPCLIENT-1006">HttpClient bug 1006</a>:
  * quotes are wrongly removed in cookie's values.
  *
@@ -66,10 +71,14 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
  */
 public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
 
-    /** The cookie name used for cookies with no name (HttpClient doesn't like empty names). */
+    /**
+     * The cookie name used for cookies with no name (HttpClient doesn't like empty names).
+     */
     public static final String EMPTY_COOKIE_NAME = "HTMLUNIT_EMPTY_COOKIE";
 
-    /** Workaround for domain of local files. */
+    /**
+     * Workaround for domain of local files.
+     */
     public static final String LOCAL_FILESYSTEM_DOMAIN = "LOCAL_FILESYSTEM";
 
     /**
@@ -96,14 +105,15 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
      * @param browserVersion the {@link BrowserVersion} to simulate
      */
     public HtmlUnitBrowserCompatCookieSpec(final BrowserVersion browserVersion) {
-        super(new HtmlUnitVersionAttributeHandler(),
-                new HtmlUnitDomainHandler(),
-                new HtmlUnitPathHandler(browserVersion),
-                new BasicMaxAgeHandler(),
-                new BasicSecureHandler(),
-                new BasicCommentHandler(),
-                new HtmlUnitExpiresHandler(browserVersion),
-                new HtmlUnitHttpOnlyHandler());
+        super();
+        registerAttribHandler(VERSION_ATTR, new HtmlUnitVersionAttributeHandler());
+        registerAttribHandler(DOMAIN_ATTR, new HtmlUnitDomainHandler());
+        registerAttribHandler(PATH_ATTR, new HtmlUnitPathHandler(browserVersion));
+        registerAttribHandler(MAX_AGE_ATTR, new BasicMaxAgeHandlerHC4());
+        registerAttribHandler(SECURE_ATTR, new BasicSecureHandlerHC4());
+        registerAttribHandler(COMMENT_ATTR, new BasicCommentHandlerHC4());
+        registerAttribHandler(EXPIRES_ATTR, new HtmlUnitExpiresHandler(browserVersion));
+        registerAttribHandler(HTTPONLY_ATTR, new HtmlUnitHttpOnlyHandler());
     }
 
     /**
@@ -116,20 +126,17 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
         int endPos = text.indexOf(';');
         if (endPos < 0) {
             endPos = text.indexOf('=');
-        }
-        else {
+        } else {
             final int pos = text.indexOf('=');
             if (pos > endPos) {
                 endPos = -1;
-            }
-            else {
+            } else {
                 endPos = pos;
             }
         }
         if (endPos < 0) {
             header = new BasicHeader(header.getName(), EMPTY_COOKIE_NAME + "=" + header.getValue());
-        }
-        else if (endPos == 0 || StringUtils.isBlank(text.substring(0, endPos))) {
+        } else if (endPos == 0 || StringUtils.isBlank(text.substring(0, endPos))) {
             header = new BasicHeader(header.getName(), EMPTY_COOKIE_NAME + header.getValue());
         }
 
@@ -142,7 +149,7 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
         final HeaderElement[] helems = header.getElements();
         boolean versioned = false;
         boolean netscape = false;
-        for (final HeaderElement helem: helems) {
+        for (final HeaderElement helem : helems) {
             if (helem.getParameterByName("version") != null) {
                 versioned = true;
             }
@@ -159,10 +166,9 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
             if (header instanceof FormattedHeader) {
                 buffer = ((FormattedHeader) header).getBuffer();
                 cursor = new ParserCursor(
-                        ((FormattedHeader) header).getValuePos(),
-                        buffer.length());
-            }
-            else {
+                    ((FormattedHeader) header).getValuePos(),
+                    buffer.length());
+            } else {
                 final String s = header.getValue();
                 if (s == null) {
                     throw new MalformedCookieException("Header value is null");
@@ -177,7 +183,7 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
             if (name == null || name.isEmpty()) {
                 throw new MalformedCookieException("Cookie name may not be empty");
             }
-            final BasicClientCookie cookie = new BasicClientCookie(name, value);
+            final BasicClientCookieHC4 cookie = new BasicClientCookieHC4(name, value);
             cookie.setPath(getDefaultPath(origin));
             cookie.setDomain(getDefaultDomain(origin));
 
@@ -197,15 +203,14 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
                 cookie.setVersion(0);
             }
             cookies = Collections.<Cookie>singletonList(cookie);
-        }
-        else {
+        } else {
             cookies = parse(helems, origin);
         }
 
         for (final Cookie c : cookies) {
             // re-add quotes around value if parsing as incorrectly trimmed them
             if (header.getValue().contains(c.getName() + "=\"" + c.getValue())) {
-                ((BasicClientCookie) c).setValue('"' + c.getValue() + '"');
+                ((BasicClientCookieHC4) c).setValue('"' + c.getValue() + '"');
             }
         }
         return cookies;
@@ -227,11 +232,10 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
             final String cookieValue = cookie.getValue();
             if (cookie.getVersion() > 0 && !isQuoteEnclosed(cookieValue)) {
                 HtmlUnitBrowserCompatCookieHeaderValueFormatter.INSTANCE.formatHeaderElement(
-                        buffer,
-                        new BasicHeaderElement(cookieName, cookieValue),
-                        false);
-            }
-            else {
+                    buffer,
+                    new BasicHeaderElement(cookieName, cookieValue),
+                    false);
+            } else {
                 // Netscape style cookies do not support quoted values
                 buffer.append(cookieName);
                 buffer.append("=");
@@ -247,9 +251,9 @@ public class HtmlUnitBrowserCompatCookieSpec extends CookieSpecBase {
 
     private static boolean isQuoteEnclosed(final String s) {
         return s != null
-                && s.length() > 1
-                && '\"' == s.charAt(0)
-                && '\"' == s.charAt(s.length() - 1);
+            && s.length() > 1
+            && '\"' == s.charAt(0)
+            && '\"' == s.charAt(s.length() - 1);
     }
 
     @Override

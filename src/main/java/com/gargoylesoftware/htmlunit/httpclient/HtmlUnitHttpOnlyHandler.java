@@ -32,11 +32,11 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieOrigin;
 import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.cookie.SetCookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.impl.cookie.BasicClientCookieHC4;
 
-final class HtmlUnitHttpOnlyHandler implements CommonCookieAttributeHandler {
+final class HtmlUnitHttpOnlyHandler implements CommonCookieAttributeHandler  {
 
-    private static final String HTTPONLY_ATTR = "httponly";
+    public static final String HTTPONLY_ATTR = "httponly";
 
     @Override
     public void validate(final Cookie cookie, final CookieOrigin origin) throws MalformedCookieException {
@@ -45,7 +45,7 @@ final class HtmlUnitHttpOnlyHandler implements CommonCookieAttributeHandler {
 
     @Override
     public void parse(final SetCookie cookie, final String value) throws MalformedCookieException {
-        ((BasicClientCookie) cookie).setAttribute(HTTPONLY_ATTR, "true");
+        ((BasicClientCookieHC4) cookie).setAttribute(HTTPONLY_ATTR, "true");
     }
 
     @Override

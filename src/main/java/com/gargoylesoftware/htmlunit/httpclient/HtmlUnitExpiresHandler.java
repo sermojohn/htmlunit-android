@@ -14,20 +14,17 @@
  */
 package com.gargoylesoftware.htmlunit.httpclient;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTTP_COOKIE_EXTENDED_DATE_PATTERNS_1;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTTP_COOKIE_EXTENDED_DATE_PATTERNS_2;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTTP_COOKIE_START_DATE_1970;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
 import org.apache.http.client.utils.DateUtils;
 import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.cookie.SetCookie;
-import org.apache.http.impl.cookie.BasicExpiresHandler;
-
-import com.gargoylesoftware.htmlunit.BrowserVersion;
+import org.apache.http.impl.cookie.BasicExpiresHandlerHC4;
 
 /**
  * Customized BasicExpiresHandler for HtmlUnit.
@@ -42,7 +39,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
  * @author Ronald Brill
  * @author John J Murdoch
  */
-final class HtmlUnitExpiresHandler extends BasicExpiresHandler {
+final class HtmlUnitExpiresHandler extends BasicExpiresHandlerHC4 {
 
     // simplified patterns from BrowserCompatSpec, with yy patterns before similar yyyy patterns
     private static final String[] DEFAULT_DATE_PATTERNS = new String[] {

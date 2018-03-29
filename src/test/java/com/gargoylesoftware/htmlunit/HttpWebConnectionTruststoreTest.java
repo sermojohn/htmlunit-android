@@ -17,14 +17,12 @@ package com.gargoylesoftware.htmlunit;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,7 +106,7 @@ public class HttpWebConnectionTruststoreTest extends SimpleWebTestCase {
                 getClass().getClassLoader().getResource("self-signed-cert.keystore"),
                 "nopassword", "jks");
         webClient.getPage("https://" + "localhost"
-                + ':' + localServer_.getServer().getLocalPort()
+                + ':' // + localServer_.getServer().getLocalPort()
                 + "/random/100");
     }
 
@@ -119,7 +117,7 @@ public class HttpWebConnectionTruststoreTest extends SimpleWebTestCase {
     public void selfSignedCertNotInTruststore() throws Exception {
         final WebClient webClient = getWebClient();
         webClient.getPage("https://" + "localhost"
-                + ':' + localServer_.getServer().getLocalPort()
+                + ':' // + localServer_.getServer().getLocalPort()
                 + "/random/100");
     }
 }

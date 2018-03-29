@@ -14,14 +14,12 @@
  */
 package com.gargoylesoftware.htmlunit.httpclient;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTTP_COOKIE_EXTRACT_PATH_FROM_LOCATION;
-
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieOrigin;
 import org.apache.http.cookie.MalformedCookieException;
-import org.apache.http.impl.cookie.BasicPathHandler;
-
-import com.gargoylesoftware.htmlunit.BrowserVersion;
+import org.apache.http.impl.cookie.BasicPathHandlerHC4;
 
 /**
  * Customized BasicPathHandler for HtmlUnit.
@@ -36,7 +34,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
  * @author Ronald Brill
  * @author John J Murdoch
  */
-final class HtmlUnitPathHandler extends BasicPathHandler {
+final class HtmlUnitPathHandler extends BasicPathHandlerHC4 {
     private final BrowserVersion browserVersion_;
 
     HtmlUnitPathHandler(final BrowserVersion browserVersion) {

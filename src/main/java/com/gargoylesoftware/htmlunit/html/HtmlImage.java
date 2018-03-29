@@ -19,33 +19,21 @@ import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTMLIMAGE_HTM
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTMLIMAGE_HTMLUNKNOWNELEMENT;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.HTMLIMAGE_INVISIBLE_NO_SRC;
 import static com.gargoylesoftware.htmlunit.BrowserVersionFeatures.JS_IMAGE_COMPLETE_RETURNS_TRUE_FOR_NO_REQUEST;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
-
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.SgmlPage;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.javascript.PostponedAction;
 import com.gargoylesoftware.htmlunit.javascript.host.dom.Node;
 import com.gargoylesoftware.htmlunit.javascript.host.event.Event;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import javax.imageio.ImageReader;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
 
 /**
  * Wrapper for the HTML element "img".
@@ -63,17 +51,21 @@ public class HtmlImage extends HtmlElement {
 
     private static final Log LOG = LogFactory.getLog(HtmlImage.class);
 
-    /** The HTML tag represented by this element. */
+    /**
+     * The HTML tag represented by this element.
+     */
     public static final String TAG_NAME = "img";
-    /** Another HTML tag represented by this element. */
+    /**
+     * Another HTML tag represented by this element.
+     */
     public static final String TAG_NAME2 = "image";
 
     private final String originalQualifiedName_;
 
     private int lastClickX_;
     private int lastClickY_;
-    private WebResponse imageWebResponse_;
-    private transient ImageData imageData_;
+    //    private WebResponse imageWebResponse_;
+//    private transient ImageData imageData_;
     private boolean downloaded_;
     private boolean onloadInvoked_;
     private boolean createdByJavascript_;
@@ -82,8 +74,8 @@ public class HtmlImage extends HtmlElement {
      * Creates a new instance.
      *
      * @param qualifiedName the qualified name of the element type to instantiate
-     * @param page the page that contains this element
-     * @param attributes the initial attributes
+     * @param page          the page that contains this element
+     * @param attributes    the initial attributes
      */
     HtmlImage(final String qualifiedName, final SgmlPage page, final Map<String, DomAttr> attributes) {
         super(unifyLocalName(qualifiedName), page, attributes);
@@ -114,7 +106,7 @@ public class HtmlImage extends HtmlElement {
     public void setAttributeNS(final String namespaceURI, final String qualifiedName, final String value) {
         final HtmlPage htmlPage = getHtmlPageOrNull();
         if ("src".equals(qualifiedName) && value != ATTRIBUTE_NOT_DEFINED
-                && htmlPage != null) {
+            && htmlPage != null) {
             final String oldValue = getAttributeNS(namespaceURI, qualifiedName);
             if (!oldValue.equals(value)) {
                 super.setAttributeNS(namespaceURI, qualifiedName, value);
@@ -144,16 +136,16 @@ public class HtmlImage extends HtmlElement {
 
     /**
      * <p><span style="color:red">INTERNAL API - SUBJECT TO CHANGE AT ANY TIME - USE AT YOUR OWN RISK.</span></p>
-     *
+     * <p>
      * <p>Executes this element's <tt>onload</tt> handler if it has one. This method also downloads the image
      * if this element has an <tt>onload</tt> handler (prior to invoking said handler), because applications
      * sometimes use images to send information to the server and use the <tt>onload</tt> handler to get notified
      * when the information has been received by the server.</p>
-     *
+     * <p>
      * <p>See <a href="http://www.nabble.com/How-should-we-handle-image.onload--tt9850876.html">here</a> and
      * <a href="http://www.nabble.com/Image-Onload-Support-td18895781.html">here</a> for the discussion which
      * lead up to this method.</p>
-     *
+     * <p>
      * <p>This method may be called multiple times, but will only attempt to execute the <tt>onload</tt>
      * handler the first time it is invoked.</p>
      */
@@ -179,10 +171,9 @@ public class HtmlImage extends HtmlElement {
             boolean ok;
             try {
                 downloadImageIfNeeded();
-                final int i = imageWebResponse_.getStatusCode();
+                final int i = HttpStatus.SC_NOT_FOUND;//imageWebResponse_.getStatusCode();
                 ok = (i >= HttpStatus.SC_OK && i < HttpStatus.SC_MULTIPLE_CHOICES) || i == HttpStatus.SC_USE_PROXY;
-            }
-            catch (final IOException e) {
+            } catch (final IOException e) {
                 ok = false;
             }
             // If the download was a success, trigger the onload handler.
@@ -199,12 +190,10 @@ public class HtmlImage extends HtmlElement {
                         }
                     };
                     htmlPage.addAfterLoadAction(action);
-                }
-                else {
+                } else {
                     scriptObject.executeEventLocally(event);
                 }
-            }
-            else {
+            } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Unable to download image for tag " + this + "; not firing onload event.");
                 }
@@ -353,7 +342,7 @@ public class HtmlImage extends HtmlElement {
      * @throws IOException if an error occurs while downloading or reading the image
      */
     public int getHeight() throws IOException {
-        return getImageReader().getHeight(0);
+        return 0; //getImageReader().getHeight(0);
     }
 
     /**
@@ -365,7 +354,7 @@ public class HtmlImage extends HtmlElement {
      * @throws IOException if an error occurs while downloading or reading the image
      */
     public int getWidth() throws IOException {
-        return getImageReader().getWidth(0);
+        return 0; //getImageReader().getWidth(0);
     }
 
     /**
@@ -378,7 +367,7 @@ public class HtmlImage extends HtmlElement {
      */
     public ImageReader getImageReader() throws IOException {
         readImageIfNeeded();
-        return imageData_.getImageReader();
+        return null; //imageData_.getImageReader();
     }
 
     /**
@@ -389,14 +378,15 @@ public class HtmlImage extends HtmlElement {
      *
      * @param downloadIfNeeded whether or not the image should be downloaded (if it hasn't already been downloaded)
      * @return {@code null} if no download should be performed and one hasn't already been triggered; otherwise,
-     *         the response received when performing a request for the image referenced by this element
+     * the response received when performing a request for the image referenced by this element
      * @throws IOException if an error occurs while downloading the image
      */
     public WebResponse getWebResponse(final boolean downloadIfNeeded) throws IOException {
-        if (downloadIfNeeded) {
+        /*if (downloadIfNeeded) {
             downloadImageIfNeeded();
         }
-        return imageWebResponse_;
+        return imageWebResponse_;*/
+        return null;
     }
 
     /**
@@ -407,7 +397,7 @@ public class HtmlImage extends HtmlElement {
      * @throws IOException if an error occurs while downloading the image
      */
     private void downloadImageIfNeeded() throws IOException {
-        if (!downloaded_) {
+        /*if (!downloaded_) {
             // HTMLIMAGE_BLANK_SRC_AS_EMPTY
             final String src = getSrcAttribute();
             if (!"".equals(src)
@@ -423,11 +413,11 @@ public class HtmlImage extends HtmlElement {
             }
             imageData_ = null;
             downloaded_ = true;
-        }
+        }*/
     }
 
     private void readImageIfNeeded() throws IOException {
-        downloadImageIfNeeded();
+        /*downloadImageIfNeeded();
         if (imageData_ == null) {
             if (null == imageWebResponse_) {
                 throw new IOException("No image response available (src=" + getSrcAttribute() + ")");
@@ -446,7 +436,7 @@ public class HtmlImage extends HtmlElement {
             while (iter.hasNext()) {
                 iter.next().dispose();
             }
-        }
+        }*/
     }
 
     /**
@@ -458,7 +448,7 @@ public class HtmlImage extends HtmlElement {
      * @param x the x position of the click
      * @param y the y position of the click
      * @return the page contained by this image's window after the click
-     * @exception IOException if an IO error occurs
+     * @throws IOException if an IO error occurs
      */
     public Page click(final int x, final int y) throws IOException {
         lastClickX_ = x;
@@ -472,7 +462,7 @@ public class HtmlImage extends HtmlElement {
      * same as the original page, depending on JavaScript event handlers, etc.
      *
      * @return the page contained by this image's window after the click
-     * @exception IOException if an IO error occurs
+     * @throws IOException if an IO error occurs
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -483,6 +473,7 @@ public class HtmlImage extends HtmlElement {
     /**
      * Performs the click action on the enclosing A tag (if any).
      * {@inheritDoc}
+     *
      * @throws IOException if an IO error occurred
      */
     @Override
@@ -517,17 +508,18 @@ public class HtmlImage extends HtmlElement {
 
     /**
      * Saves this image as the specified file.
+     *
      * @param file the file to save to
      * @throws IOException if an IO error occurs
      */
     public void saveAs(final File file) throws IOException {
-        downloadImageIfNeeded();
+        /*downloadImageIfNeeded();
         if (null != imageWebResponse_) {
             try (final InputStream inputStream = imageWebResponse_.getContentAsStream();
                  final FileOutputStream fileOut = new FileOutputStream(file)) {
                 IOUtils.copy(imageWebResponse_.getContentAsStream(), fileOut);
             }
-        }
+        }*/
     }
 
     /**
@@ -545,7 +537,7 @@ public class HtmlImage extends HtmlElement {
      * of objects which could all be garbage collected without impacting the ImageReader it is better to
      * wrap it in another class.
      */
-    private static final class ImageData {
+    /*private static final class ImageData {
 
         private final ImageReader imageReader_;
 
@@ -557,9 +549,9 @@ public class HtmlImage extends HtmlElement {
             return imageReader_;
         }
 
-        /**
+        *//**
          * {@inheritDoc}
-         */
+         *//*
         @Override
         protected void finalize() throws Throwable {
             if (imageReader_ != null) {
@@ -567,18 +559,16 @@ public class HtmlImage extends HtmlElement {
                     try (final ImageInputStream stream = (ImageInputStream) imageReader_.getInput()) {
                         // nothing
                     }
-                }
-                catch (final IOException e) {
+                } catch (final IOException e) {
                     LOG.error(e.getMessage(), e);
-                }
-                finally {
+                } finally {
                     imageReader_.setInput(null);
                     imageReader_.dispose();
                 }
             }
             super.finalize();
         }
-    }
+    }*/
 
     /**
      * @return true if the image was successfully downloaded
@@ -587,7 +577,7 @@ public class HtmlImage extends HtmlElement {
         if (hasFeature(JS_IMAGE_COMPLETE_RETURNS_TRUE_FOR_NO_REQUEST)) {
             return downloaded_ || ATTRIBUTE_NOT_DEFINED == getSrcAttribute();
         }
-        return imageData_ != null;
+        return true; //imageData_ != null;
     }
 
     /**
@@ -597,8 +587,8 @@ public class HtmlImage extends HtmlElement {
     public boolean isDisplayed() {
         final String src = getSrcAttribute();
         if (hasFeature(HTMLIMAGE_INVISIBLE_NO_SRC)
-                && (ATTRIBUTE_NOT_DEFINED == src
-                    || (hasFeature(HTMLIMAGE_BLANK_SRC_AS_EMPTY) && StringUtils.isBlank(src)))) {
+            && (ATTRIBUTE_NOT_DEFINED == src
+            || (hasFeature(HTMLIMAGE_BLANK_SRC_AS_EMPTY) && StringUtils.isBlank(src)))) {
             return false;
         }
         return super.isDisplayed();
@@ -606,7 +596,7 @@ public class HtmlImage extends HtmlElement {
 
     /**
      * <span style="color:red">INTERNAL API - SUBJECT TO CHANGE AT ANY TIME - USE AT YOUR OWN RISK.</span><br>
-     *
+     * <p>
      * Marks this frame as created by javascript. This is needed to handle
      * some special IE behavior.
      */
@@ -616,9 +606,10 @@ public class HtmlImage extends HtmlElement {
 
     /**
      * <span style="color:red">INTERNAL API - SUBJECT TO CHANGE AT ANY TIME - USE AT YOUR OWN RISK.</span><br>
-     *
+     * <p>
      * Returns true if this frame was created by javascript. This is needed to handle
      * some special IE behavior.
+     *
      * @return true or false
      */
     public boolean wasCreatedByJavascript() {
@@ -628,6 +619,7 @@ public class HtmlImage extends HtmlElement {
     /**
      * Returns the original element qualified name,
      * this is needed to differentiate between <tt>img</tt> and <tt>image</tt>.
+     *
      * @return the original element qualified name
      */
     public String getOriginalQualifiedName() {
@@ -640,7 +632,7 @@ public class HtmlImage extends HtmlElement {
     @Override
     public String getLocalName() {
         if (wasCreatedByJavascript()
-                && (hasFeature(HTMLIMAGE_HTMLELEMENT) || hasFeature(HTMLIMAGE_HTMLUNKNOWNELEMENT))) {
+            && (hasFeature(HTMLIMAGE_HTMLELEMENT) || hasFeature(HTMLIMAGE_HTMLUNKNOWNELEMENT))) {
             return originalQualifiedName_;
         }
         return super.getLocalName();

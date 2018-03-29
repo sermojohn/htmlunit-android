@@ -129,7 +129,7 @@ public class InsecureHttpsServer {
      * @return the host name
      */
     public String getHostName() {
-        return localServer_.getServer().getInetAddress().getHostName();
+        return null; //localServer_.getServer().getInetAddress().getHostName();
     }
 
     /**
@@ -137,6 +137,6 @@ public class InsecureHttpsServer {
      * @return the host port
      */
     public int getPort() {
-        return localServer_.getServer().getLocalPort();
+        return 0; //localServer_.getServer().getLocalPort();
     }
 }
